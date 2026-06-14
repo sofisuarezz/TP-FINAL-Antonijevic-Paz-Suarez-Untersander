@@ -96,7 +96,7 @@ class Clyde(Ghost):
 
     def __init__(self, mapa):
 
-        super().__init__(mapa, "orange", esquina_col=2, esquina_fila=29, offset_x=tile_size)
+        super().__init__(mapa, "orange", esquina_col=2, esquina_fila=29, offset_x=2*tile_size)
 
     def get_target(self, pacman):
 
@@ -113,7 +113,7 @@ class Facu(Ghost):
 
     def __init__(self, mapa):
 
-        super().__init__(mapa, "green", esquina_col=0, esquina_fila=30, offset_x=-tile_size)
+        super().__init__(mapa, "green", esquina_col=0, esquina_fila=30, offset_x=-2*tile_size)
 
     def get_target(self, pacman):
 
@@ -129,7 +129,7 @@ class Picky(Ghost):
 
     def __init__(self, mapa):
 
-        super().__init__(mapa, "purple", esquina_col=2, esquina_fila=29, offset_x=2 * tile_size)
+        super().__init__(mapa, "purple", esquina_col=2, esquina_fila=29, offset_x=3 * tile_size)
         self.mapa = mapa
         self.pellet_objetivo = None
 
