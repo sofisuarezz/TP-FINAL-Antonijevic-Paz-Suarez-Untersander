@@ -65,12 +65,16 @@ fuente = pygame.font.SysFont("arial", 24, True)
 reloj  = pygame.time.Clock()
 
 jugador = pacman(mapa)
-blinky = Blinky(mapa)
-pinky = Pinky(mapa)
-inky = Inky(mapa,blinky)
-clyde = Clyde(mapa)
-facu= Facu(mapa)
-picky = Picky(mapa)
+
+blinky_nuevo = Blinky(mapa)
+fantasmas = [
+    blinky_nuevo,
+    Pinky(mapa),
+    Inky(mapa, blinky_nuevo),
+    Clyde(mapa),
+    Facu(mapa),
+    Picky(mapa)
+]
 
 score = 0
 high_score = cargar_high_score()
@@ -104,113 +108,22 @@ while ventana_abierta:
 
 
         if jugador.comio_power_pellet:
-            blinky.asustar()
-            pinky.asustar()
-            inky.asustar()
-            clyde.asustar()
-            facu.asustar()
-            picky.asustar()
+            for fantasma in fantasmas:
+                fantasma.asustar()
 
-        blinky.actualizar(dt, mapa, jugador)
-        pinky.actualizar(dt,mapa,jugador)
-        inky.actualizar(dt,mapa,jugador)
-        clyde.actualizar(dt,mapa,jugador)
-        facu.actualizar(dt,mapa,jugador)
-        picky.actualizar(dt,mapa,jugador)
+        for fantasma in fantasmas:
+            fantasma.actualizar(dt, mapa, jugador)
 
-        if jugador.colisiona_con(blinky):
-            if blinky.estado == ESTADO_ASUSTADO:
-                blinky.morir()
+        pacman_comido = False
 
-            elif blinky.estado == ESTADO_NORMAL:
+        for fantasma in fantasmas:
+            if jugador.colisiona_con(fantasma):
+                if fantasma.estado == ESTADO_ASUSTADO:
+                    fantasma.morir()
+                    score = score + 200
 
-                jugador.resetear()
-                blinky.resetear()
-                pinky.resetear()
-                inky.resetear()
-                clyde.resetear()
-                facu.resetear()
-                picky.resetear()
-
-                pausa_reinicio = 2.0
-        
-        if jugador.colisiona_con(pinky):
-            if pinky.estado == ESTADO_ASUSTADO:
-                pinky.morir()
-
-            elif pinky.estado == ESTADO_NORMAL:
-
-                jugador.resetear()
-                blinky.resetear()
-                pinky.resetear()
-                inky.resetear()
-                clyde.resetear()
-                facu.resetear()
-                picky.resetear()
-
-                pausa_reinicio = 2.0
-        
-        if jugador.colisiona_con(inky):
-            if inky.estado == ESTADO_ASUSTADO:
-                inky.morir()
-
-            elif inky.estado == ESTADO_NORMAL:
-
-                jugador.resetear()
-                blinky.resetear()
-                pinky.resetear()
-                inky.resetear()
-                clyde.resetear()
-                facu.resetear()
-                picky.resetear()
-
-                pausa_reinicio = 2.0
-
-        if jugador.colisiona_con(clyde):
-            if clyde.estado == ESTADO_ASUSTADO:
-                clyde.morir()
-
-            elif clyde.estado == ESTADO_NORMAL:
-
-                jugador.resetear()
-                blinky.resetear()
-                pinky.resetear()
-                inky.resetear()
-                clyde.resetear()
-                facu.resetear()
-                picky.resetear()
-
-                pausa_reinicio = 2.0
-
-        if jugador.colisiona_con(facu):
-            if facu.estado == ESTADO_ASUSTADO:
-                facu.morir()
-
-            elif facu.estado == ESTADO_NORMAL:
-                pacman_comido = True
-                jugador.resetear()
-                blinky.resetear()
-                pinky.resetear()
-                inky.resetear()
-                clyde.resetear()
-                facu.resetear()
-                picky.resetear()
-                pausa_reinicio = 2.0
-        
-        if jugador.colisiona_con(picky):
-            if picky.estado == ESTADO_ASUSTADO:
-                picky.morir()
-
-            elif picky.estado == ESTADO_NORMAL:
-                pacman_comido = True
-                jugador.resetear()
-                blinky.resetear()
-                pinky.resetear()
-                inky.resetear()
-                clyde.resetear()
-                facu.resetear()
-                picky.resetear()
-                pausa_reinicio = 2.0
+                elif fantasma.estado == ESTADO_NORMAL:
+                    pacman_comido = True
 
 
         if pacman_comido:
@@ -226,17 +139,36 @@ while ventana_abierta:
                     mapa = Mapa("mapa.txt")
 
                     jugador = pacman(mapa)
-                    blinky = Blinky(mapa)
-                    pinky = Pinky(mapa)
-                    inky = Inky(mapa, blinky)
-                    clyde = Clyde(mapa)
-                    facu  = Facu(mapa)
-                    picky = Picky(mapa)
+                    blinky_nuevo = Blinky(mapa)
+                    fantasmas = [
+                        blinky_nuevo,
+                        Pinky(mapa),
+                        Inky(mapa, blinky_nuevo),
+                        Clyde(mapa),
+                        Facu(mapa),
+                        Picky(mapa)]
 
                     score = 0
                     high_score = cargar_high_score()
                     vidas = vidas_iniciales
                     pausa_reinicio = 0
+
+            else:
+                resetear_posiciones(jugador, fantasmas)
+                pausa_reinicio = 2.0
+        
+        if not quedan_puntos(mapa):
+            mapa = Mapa("mapa.txt")
+            jugador = pacman(mapa)
+            blinky_nuevo = Blinky(mapa)
+            fantasmas = [
+                        blinky_nuevo,
+                        Pinky(mapa),
+                        Inky(mapa, blinky_nuevo),
+                        Clyde(mapa),
+                        Facu(mapa),
+                        Picky(mapa)]
+            pausa_reinicio = 2.0
 
 
     pantalla.fill((0, 0, 0))
@@ -244,13 +176,9 @@ while ventana_abierta:
     dibujar_mapa(pantalla, mapa)
     dibujar_vidas_juego(pantalla,vidas)
     jugador.dibujar(pantalla, offset_y=margen_superior)
-    blinky.dibujar(pantalla, margen_superior)
-    pinky.dibujar(pantalla,margen_superior)
-    inky.dibujar(pantalla,margen_superior)
-    clyde.dibujar(pantalla,margen_superior)
-    facu.dibujar(pantalla,margen_superior)
-    picky.dibujar(pantalla,margen_superior)
-
+    
+    for fantasma in fantasmas:
+        fantasma.dibujar(pantalla, margen_superior)
 
     pygame.display.flip()
 
