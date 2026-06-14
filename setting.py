@@ -38,3 +38,5 @@ color_tunel = (30, 30, 30)
 color_texto=(255,255,255)
 color_pacman=  (255,255,0)
 color_infojuego = (255,255,255)
+
+direcciones = {"derecha": (1, 0), "izquierda": (-1, 0), "arriba": (0, -1), "abajo": (0, 1)}
