@@ -1,13 +1,13 @@
 import pygame
 from mapa import Mapa, ancho_mapa, alto_mapa, tile_size
 from pacman import pacman
-from ver_mapa import dibujar_mapa, margen_superior, margen_inferior
+from ver_mapa import dibujar_mapa,dibujar_texto, dibujar_vidas, margen_superior, margen_inferior
 from fantasmas.ghost import *
 from fantasmas.personalidades import *
 from sonidos import Sonido
 from pdeinicio import pantalla_inicio
 
-from setting import vidas_iniciales, color_fondo, color_pacman, color_infojuego
+from setting import  fps,vidas_iniciales, color_fondo, color_pacman, color_infojuego
 from high_score import cargar_high_score,guardar_high_score
 from pantalla_gameover import pantalla_game_over
 
@@ -52,11 +52,70 @@ def resetear_posiciones(jugador, fantasmas):
     for fantasma in fantasmas:
         fantasma.resetear()
 
+def obtener_esquina(indice):
+    if indice == 0:
+        return 2, 0
+
+    if indice == 1:
+        return 25, 0
+
+    if indice == 2:
+        return 2, 29
+
+    if indice == 3:
+        return 25, 29
+
+
+def crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa):
+    fantasmas = []
+
+    blinky_referencia = None
+
+    for fantasma in fantasmas_elegidos:
+        if fantasma["nombre"] == "Blinky":
+            blinky_referencia = Blinky(mapa)
+
+    if blinky_referencia is None:
+        blinky_referencia = Blinky(mapa)
+
+    for fantasma in fantasmas_elegidos:
+        nombre = fantasma["nombre"]
+    
+        if nombre == "Blinky":
+            nuevo_fantasma = blinky_referencia
+
+        elif nombre == "Pinky":
+            nuevo_fantasma = Pinky(mapa)
+
+        elif nombre == "Inky":
+            nuevo_fantasma = Inky(mapa, blinky_referencia)
+
+        elif nombre == "Clyde":
+            nuevo_fantasma = Clyde(mapa)
+
+        elif nombre == "Facu":
+            nuevo_fantasma = Facu(mapa)
+
+        elif nombre == "Picky":
+            nuevo_fantasma = Picky(mapa)
+
+        indice_esquina = esquinas_asignadas[nombre]
+        esquina_col, esquina_fila = obtener_esquina(indice_esquina)
+
+        nuevo_fantasma.esquina_col = esquina_col
+        nuevo_fantasma.esquina_fila = esquina_fila
+
+        fantasmas.append(nuevo_fantasma)
+
+    return fantasmas
 
 pygame.init()
 
 sonido = Sonido()
+high_score = cargar_high_score()
 sonido.reproducir_jingle_inicio()
+fantasmas_elegidos, esquinas_asignadas = pantalla_inicio(high_score)
+
 
 mapa = Mapa("mapa.txt")
 
@@ -71,15 +130,12 @@ reloj  = pygame.time.Clock()
 
 jugador = pacman(mapa)
 
-blinky_nuevo = Blinky(mapa)
-fantasmas = [
-    blinky_nuevo,
-    Pinky(mapa),
-    Inky(mapa, blinky_nuevo),
-    Clyde(mapa),
-    Facu(mapa),
-    Picky(mapa)
-]
+fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
+
+puntos_salida = [0, 30, 60, 90, 90, 90]
+
+for i in range(len(fantasmas)):
+    fantasmas[i].puntos_para_salir = puntos_salida[i]
 
 score = 0
 high_score = cargar_high_score()
@@ -114,7 +170,10 @@ while ventana_abierta:
         if score > high_score:
             high_score = score
             guardar_high_score(high_score) 
-
+        
+        for fantasma in fantasmas:
+            if fantasma.estado == ESTADO_ESPERANDO and score >= fantasma.puntos_para_salir:
+                fantasma.estado = ESTADO_SALIENDO
 
 
         if jugador.comio_power_pellet:
@@ -151,13 +210,11 @@ while ventana_abierta:
 
                     jugador = pacman(mapa)
                     blinky_nuevo = Blinky(mapa)
-                    fantasmas = [
-                        blinky_nuevo,
-                        Pinky(mapa),
-                        Inky(mapa, blinky_nuevo),
-                        Clyde(mapa),
-                        Facu(mapa),
-                        Picky(mapa)]
+                    fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
+                    
+                    puntos_salida = [0, 30, 60, 90, 90, 90]
+                    for i in range(len(fantasmas)):
+                        fantasmas[i].puntos_para_salir = puntos_salida[i]
 
                     score = 0
                     high_score = cargar_high_score()
@@ -173,13 +230,12 @@ while ventana_abierta:
             mapa = Mapa("mapa.txt")
             jugador = pacman(mapa)
             blinky_nuevo = Blinky(mapa)
-            fantasmas = [
-                        blinky_nuevo,
-                        Pinky(mapa),
-                        Inky(mapa, blinky_nuevo),
-                        Clyde(mapa),
-                        Facu(mapa),
-                        Picky(mapa)]
+            fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
+            
+            puntos_salida = [0, 30, 60, 90, 90, 90]
+            for i in range(len(fantasmas)):
+                fantasmas[i].puntos_para_salir = puntos_salida[i]
+    
             pausa_reinicio = 2.0
 
 

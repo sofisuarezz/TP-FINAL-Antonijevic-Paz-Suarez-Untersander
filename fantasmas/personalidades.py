@@ -7,7 +7,7 @@ class Blinky(Ghost):
     def __init__(self, mapa):
 
         super().__init__(mapa, "red", esquina_col=25, esquina_fila=1, offset_x=0)
-
+        
     def get_target(self, pacman):
 
          return (pacman.col(), pacman.fila())

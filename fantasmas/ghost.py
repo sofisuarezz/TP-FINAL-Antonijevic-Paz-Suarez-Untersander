@@ -6,6 +6,7 @@ ESTADO_NORMAL = "normal"
 ESTADO_ASUSTADO = "asustado"
 ESTADO_OJOS = "ojos"
 ESTADO_SALIENDO = "saliendo"
+ESTADO_ESPERANDO = "esperando"
 
 TIEMPOS_MODO = [
     ("scatter", 7),
@@ -38,7 +39,8 @@ class Ghost:
 
         self.velocidad = vel_fantasma_normal
 
-        self.estado = ESTADO_SALIENDO
+        self.estado = ESTADO_ESPERANDO
+        self.puntos_para_salir = 0
 
         self.modo= "scatter"
         self.tiempo_modo = 0
@@ -283,6 +285,8 @@ class Ghost:
 
     def actualizar(self, dt, mapa, pacman):
 
+        if self.estado == ESTADO_ESPERANDO:
+            return
         self.actualizar_estado(dt)
         self.actualizar_modo(dt)
 
@@ -404,7 +408,7 @@ class Ghost:
         self.x = self.inicial_x
         self.y = self.inicial_y
 
-        self.estado = ESTADO_SALIENDO
+        self.estado = ESTADO_ESPERANDO
 
         self.velocidad = vel_fantasma_normal
 
