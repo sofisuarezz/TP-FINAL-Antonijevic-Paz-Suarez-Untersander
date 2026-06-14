@@ -7,6 +7,40 @@ from blincky import Blinky
 from pinky import Pinky
 from Inky import Inky
 
+from setting import fps, vidas_iniciales, color_fondo, color_pacman, color_infojuego
+from high_score import cargar_high_score,guardar_high_score
+from pantalla_gameover import pantalla_game_over
+
+
+def dibujar_texto_juego(pantalla, fuente, score, high_score):
+    texto_1up = fuente.render("1UP", True, color_infojuego)
+    texto_score = fuente.render(str(score), True, color_infojuego)
+
+    texto_high = fuente.render("HIGH SCORE", True, color_infojuego)
+    texto_high_score = fuente.render(str(high_score), True, color_infojuego)
+
+    pantalla.blit(texto_1up, (70, 10))
+    pantalla.blit(texto_score, (85, 35))
+
+    pantalla.blit(texto_high, (220, 10))
+    pantalla.blit(texto_high_score, (285, 35))
+
+
+def dibujar_vidas_juego(pantalla, vidas):
+    y = margen_superior + alto_mapa * tile_size + 30
+
+    for i in range(vidas):
+        x = 30 + i * 35
+
+        pygame.draw.circle(pantalla, color_pacman, (x, y), 12)
+
+        pygame.draw.polygon(
+            pantalla,
+            color_fondo,
+            [(x, y), (x + 14, y - 7), (x + 14, y + 7)]
+        )
+
+
 pygame.init()
 
 mapa = Mapa("mapa.txt")
@@ -29,6 +63,10 @@ facu= Facu(mapa)
 picky = Picky(mapa)
 
 score = 0
+high_score = cargar_high_score()
+vidas = vidas_iniciales
+
+
 ventana_abierta = True
 pausa_reinicio = 0
 
@@ -45,7 +83,15 @@ while ventana_abierta:
 
     else:
 
+        pacman_comido = False 
+
         score += jugador.actualizar(dt, mapa)
+
+        if score > high_score:
+            high_score = score
+            guardar_high_score(high_score) 
+
+
 
         if jugador.comio_power_pellet:
             blinky.asustar()
@@ -157,10 +203,36 @@ while ventana_abierta:
                 pausa_reinicio = 2.0
 
 
+        if pacman_comido:
+            vidas = vidas - 1
+
+            if vidas <= 0:
+                resultado = pantalla_game_over(pantalla, score)
+
+                if resultado == "salir":
+                    ventana_abierta = False
+
+                if resultado == "reiniciar":
+                    mapa = Mapa("mapa.txt")
+
+                    jugador = pacman(mapa)
+                    blinky = Blinky(mapa)
+                    pinky = Pinky(mapa)
+                    inky = Inky(mapa, blinky)
+                    clyde = Clyde(mapa)
+                    facu  = Facu(mapa)
+                    picky = Picky(mapa)
+
+                    score = 0
+                    high_score = cargar_high_score()
+                    vidas = vidas_iniciales
+                    pausa_reinicio = 0
+
+
     pantalla.fill((0, 0, 0))
-    dibujar_texto(pantalla, fuente)
+    dibujar_texto_juego(pantalla, fuente,score, high_score)
     dibujar_mapa(pantalla, mapa)
-    dibujar_vidas(pantalla)
+    dibujar_vidas_juego(pantalla,vidas)
     jugador.dibujar(pantalla, offset_y=margen_superior)
     blinky.dibujar(pantalla, margen_superior)
     pinky.dibujar(pantalla,margen_superior)
