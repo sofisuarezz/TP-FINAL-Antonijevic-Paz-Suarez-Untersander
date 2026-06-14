@@ -40,6 +40,12 @@ def dibujar_vidas_juego(pantalla, vidas):
             [(x, y), (x + 14, y - 7), (x + 14, y + 7)]
         )
 
+def quedan_puntos(mapa):
+    for fila in mapa.grilla:
+        for caracter in fila:
+            if caracter == "." or caracter == "o":
+                return True
+    return False
 
 pygame.init()
 
