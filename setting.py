@@ -1,5 +1,5 @@
 
-tile_size= 24
+tile_size= 20
 map_col = 28
 map_filas= 31
 
