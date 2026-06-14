@@ -1,9 +1,11 @@
 import pygame
-import setting 
+import setting
+
 
 class Sonido:
-    def __innit__(self):
+    def __init__(self):
         pygame.mixer.init()
+
         self.comer_punto = pygame.mixer.Sound(setting.sonido_comer_punto)
         self.perder_vida = pygame.mixer.Sound(setting.sonido_perder_vida)
         self.jingle_inicio = pygame.mixer.Sound(setting.sonido_jingle_inicio)
@@ -20,4 +22,3 @@ class Sonido:
 
     def reproducir_jingle_inicio(self):
         self.jingle_inicio.play()
-
