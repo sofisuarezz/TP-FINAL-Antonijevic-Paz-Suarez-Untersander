@@ -2,10 +2,9 @@ import pygame
 from mapa import Mapa, ancho_mapa, alto_mapa, tile_size
 from pacman import pacman
 from ver_mapa import dibujar_mapa, dibujar_texto, dibujar_vidas, margen_superior, margen_inferior
-from ghost import *
-from blincky import Blinky
-from pinky import Pinky
-from Inky import Inky
+from fantasmas.ghost import *
+from fantasmas.personalidades import *
+
 
 from setting import fps, vidas_iniciales, color_fondo, color_pacman, color_infojuego
 from high_score import cargar_high_score,guardar_high_score
