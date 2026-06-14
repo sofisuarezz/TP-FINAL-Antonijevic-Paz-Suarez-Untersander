@@ -18,6 +18,12 @@ vel_fantasma_asustado = vel_max * 0.50
 vel_fantasma_tunel = vel_max * 0.40
 vel_fantasma_ojos = vel_max * 1.50
 
+direcciones = {
+    "derecha": (1, 0),
+    "izquierda": (-1, 0),
+    "arriba": (0, -1),
+    "abajo": (0, 1)
+}
 
 duracion_asustado = 6.0
 duracion_parpadeo= 2.0
