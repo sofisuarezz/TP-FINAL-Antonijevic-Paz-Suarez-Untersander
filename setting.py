@@ -18,12 +18,8 @@ vel_fantasma_asustado = vel_max * 0.50
 vel_fantasma_tunel = vel_max * 0.40
 vel_fantasma_ojos = vel_max * 1.50
 
-direcciones = {
-    "derecha": (1, 0),
-    "izquierda": (-1, 0),
-    "arriba": (0, -1),
-    "abajo": (0, 1)
-}
+direcciones = {"derecha": (1, 0), "izquierda": (-1, 0), "arriba": (0, -1), "abajo": (0, 1)}
+opuesta = {"derecha": "izquierda", "izquierda": "derecha", "arriba": "abajo", "abajo": "arriba"}
 
 duracion_asustado = 6.0
 duracion_parpadeo= 2.0
@@ -44,5 +40,3 @@ color_tunel = (30, 30, 30)
 color_texto=(255,255,255)
 color_pacman=  (255,255,0)
 color_infojuego = (255,255,255)
-
-direcciones = {"derecha": (1, 0), "izquierda": (-1, 0), "arriba": (0, -1), "abajo": (0, 1)}

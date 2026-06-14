@@ -2,13 +2,6 @@ import pygame
 from setting import *
 import random
 
-opuesta = {
-    "derecha": "izquierda",
-    "izquierda": "derecha",
-    "arriba": "abajo",
-    "abajo": "arriba"
-}
-
 ESTADO_NORMAL = "normal"
 ESTADO_ASUSTADO = "asustado"
 ESTADO_OJOS = "ojos"
