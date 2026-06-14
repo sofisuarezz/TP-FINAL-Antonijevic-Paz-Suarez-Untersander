@@ -40,3 +40,10 @@ color_tunel = (30, 30, 30)
 color_texto=(255,255,255)
 color_pacman=  (255,255,0)
 color_infojuego = (255,255,255)
+
+volumen_sonidos = 0.6
+volumen_musica = 0.5
+
+sonido_comer_punto = "sonidos/comer_punto.wav"
+sonido_perder_vida = "sonidos/perder_vida.wav"
+sonido_jingle_inicio = "sonidos/jingle_inicio.wav"
