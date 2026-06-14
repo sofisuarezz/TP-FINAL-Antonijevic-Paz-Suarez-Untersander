@@ -4,7 +4,8 @@ from pacman import pacman
 from ver_mapa import dibujar_mapa, dibujar_texto, dibujar_vidas, margen_superior, margen_inferior
 from fantasmas.ghost import *
 from fantasmas.personalidades import *
-
+from sonidos import Sonido
+from pdeinicio import pantalla_inicio
 
 from setting import fps, vidas_iniciales, color_fondo, color_pacman, color_infojuego
 from high_score import cargar_high_score,guardar_high_score
@@ -51,7 +52,11 @@ def resetear_posiciones(jugador, fantasmas):
     for fantasma in fantasmas:
         fantasma.resetear()
 
+
 pygame.init()
+
+sonido = Sonido()
+sonido.reproducir_jingle_inicio()
 
 mapa = Mapa("mapa.txt")
 
@@ -99,7 +104,12 @@ while ventana_abierta:
 
         pacman_comido = False 
 
-        score += jugador.actualizar(dt, mapa)
+        puntos_ganados = jugador.actualizar(dt, mapa)
+
+        if puntos_ganados > 0:
+            sonido.reproducir_comer_punto()
+
+        score += puntos_ganados
 
         if score > high_score:
             high_score = score
@@ -127,6 +137,7 @@ while ventana_abierta:
 
 
         if pacman_comido:
+            sonido.reproducir_perder_vida()
             vidas = vidas - 1
 
             if vidas <= 0:
@@ -153,6 +164,7 @@ while ventana_abierta:
                     vidas = vidas_iniciales
                     pausa_reinicio = 0
 
+                    
             else:
                 resetear_posiciones(jugador, fantasmas)
                 pausa_reinicio = 2.0
