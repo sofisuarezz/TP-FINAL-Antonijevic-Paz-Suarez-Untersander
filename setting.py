@@ -24,6 +24,16 @@ opuesta = {"derecha": "izquierda", "izquierda": "derecha", "arriba": "abajo", "a
 duracion_asustado = 6.0
 duracion_parpadeo= 2.0
 
+TIEMPOS_MODO = [
+    ("scatter", 7),
+    ("chase", 20),
+    ("scatter", 7),
+    ("chase", 20),
+    ("scatter", 5),
+    ("chase", 20),
+    ("scatter", 5),
+    ("chase", 999999),
+]
 
 vidas_iniciales= 3
 punto_dot=10

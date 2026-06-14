@@ -46,6 +46,7 @@ class Ghost:
 
         self.tiempo_asustado = 0
         self.ultimo_tile_asustado = None
+        self.ultimo_tile_decision = None
 
         self.sprite_asustado_azul = pygame.transform.scale(
             pygame.image.load("imagenes/blue_asustado.png").convert_alpha(),
@@ -126,42 +127,55 @@ class Ghost:
 
     def elegir_direccion(self, mapa, target_col, target_fila):
 
+        direccion_anterior = self.direccion
+
         opciones = self.direcciones_validas(mapa)
 
         if len(opciones) == 0:
             return
 
-        direccion_opuesta = opuesta[self.direccion]
+        direccion_opuesta = opuesta[direccion_anterior]
 
-        # aca descarto la direccion opuesta como direccion valida pero falta revisar...
+        # Descarto la dirección de la que viene (como ya tenia antes)
         if direccion_opuesta in opciones and len(opciones) > 1:
             opciones.remove(direccion_opuesta)
 
-        mejor_direccion = opciones[0]
-        menor_distancia = float("inf")
+        if len(opciones) == 0:
+            return
 
-        for direccion in opciones:
+        # Agrego:
+        # Si queda una sola opción, no hay una decisión real:
+        # el fantasma simplemente sigue por ahí (porque no hay intersección)
 
-            dc, df = direcciones[direccion]
+        if len(opciones) == 1:
 
-            nueva_col = self.col() + dc
-            nueva_fila = self.fila() + df
+            mejor_direccion = opciones[0]
 
-            distancia = (
-                (nueva_col - target_col) ** 2 +
-                (nueva_fila - target_fila) ** 2)
+        else:
 
-            if distancia < menor_distancia:
+            # Si hay más de una opción: intersección
+            # y ahí si puede elegir el tile adyacente que minimiza la distancia al target
 
-                menor_distancia = distancia
-                mejor_direccion = direccion
+            mejor_direccion = opciones[0]
+            menor_distancia = float("inf")
 
-            # si hay empate entre dos direcciones ponemos que mejor seguir
-            #  derecho para evitar comportamiento raro (tipo giros innesesarios)
+            for direccion in opciones:
 
-            elif distancia == menor_distancia and direccion == self.direccion:
+                dc, df = direcciones[direccion]
 
-                mejor_direccion = direccion
+                nueva_col = self.col() + dc
+                nueva_fila = self.fila() + df
+
+                distancia = ((nueva_col - target_col) ** 2 + (nueva_fila - target_fila) ** 2)
+
+                if distancia < menor_distancia:
+
+                    menor_distancia = distancia
+                    mejor_direccion = direccion
+
+                elif distancia == menor_distancia and direccion == self.direccion:
+
+                    mejor_direccion = direccion
 
         if mejor_direccion != self.direccion:
             self.alinear_al_tile()
@@ -319,6 +333,7 @@ class Ghost:
             self.y = puerta_y
             self.estado = ESTADO_NORMAL
             self.direccion = "izquierda"
+            self.ultimo_tile_decision = None
 
             return
         # para que los ojos vuelvan a la ghost house bien 
@@ -355,22 +370,32 @@ class Ghost:
 
             else:
 
-                if self.estado == ESTADO_OJOS:
-                    target_col, target_fila = self.get_target_ojos()
+                tile_actual = (self.col(), self.fila())
 
-                elif self.modo == "scatter":
-                    target_col = self.esquina_col
-                    target_fila = self.esquina_fila
+                # Hago que decida una sola vez por tile/intersección
+                # porque tengo que evitar que vuelva a recalcular mientras sigue centrado
+                # en el mismo tile!
 
-                else:
-                    target_col, target_fila = self.get_target(pacman)
+                if tile_actual != self.ultimo_tile_decision:
 
-                direccion_anterior = self.direccion
+                    self.ultimo_tile_decision = tile_actual
 
-                self.elegir_direccion(mapa, target_col, target_fila)
+                    if self.estado == ESTADO_OJOS:
+                        target_col, target_fila = self.get_target_ojos()
 
-                if self.direccion != direccion_anterior:
-                    self.alinear_al_tile()
+                    elif self.modo == "scatter":
+                        target_col = self.esquina_col
+                        target_fila = self.esquina_fila
+
+                    else:
+                        target_col, target_fila = self.get_target(pacman)
+
+                    direccion_anterior = self.direccion
+
+                    self.elegir_direccion(mapa, target_col, target_fila)
+
+                    if self.direccion != direccion_anterior:
+                        self.alinear_al_tile()
 
         self.mover(dt,mapa)
 
@@ -394,6 +419,8 @@ class Ghost:
         self.indice_modo = 0
 
         self.ultimo_tile_asustado = None
+
+        self.ultimo_tile_decision = None
 
     def dibujar(self, pantalla, offset_y=0):
 
