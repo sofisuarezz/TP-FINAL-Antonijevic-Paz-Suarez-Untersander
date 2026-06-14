@@ -277,20 +277,48 @@ class Ghost:
             puerta_col = 13
             puerta_fila = 12
 
-            if self.fila() <= puerta_fila:
+            puerta_x = puerta_col * tile_size + tile_size / 2
+            puerta_y = puerta_fila * tile_size + tile_size / 2
 
-                self.x = puerta_col * tile_size + tile_size / 2
-                self.y = puerta_fila * tile_size + tile_size / 2
+            margen = 2
 
-                self.estado = ESTADO_NORMAL
-                self.direccion = "izquierda"
+            # necesito que se alineen horizontalmente con la puerta
+            if abs(self.x - puerta_x) > margen:
+
+                if self.x < puerta_x:
+
+                    self.direccion = "derecha"
+                    self.x += self.velocidad * dt
+
+                    if self.x > puerta_x:
+                        self.x = puerta_x
+
+                else:
+
+                    self.direccion = "izquierda"
+                    self.x -= self.velocidad * dt
+
+                    if self.x < puerta_x:
+                        self.x = puerta_x
 
                 return
 
-            else:
+            # ahora si, una vez alineado con la puerta, sube
+            if self.y > puerta_y:
 
+                self.x = puerta_x
                 self.direccion = "arriba"
-                self.mover(dt, mapa)
+                self.y -= self.velocidad * dt
+
+                if self.y < puerta_y:
+                    self.y = puerta_y
+
+                return
+
+            self.x = puerta_x
+            self.y = puerta_y
+            self.estado = ESTADO_NORMAL
+            self.direccion = "izquierda"
 
             return
         # para que los ojos vuelvan a la ghost house bien 
