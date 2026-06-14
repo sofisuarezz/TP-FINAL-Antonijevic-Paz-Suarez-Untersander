@@ -24,6 +24,9 @@ jugador = pacman(mapa)
 blinky = Blinky(mapa)
 pinky = Pinky(mapa)
 inky = Inky(mapa,blinky)
+clyde = Clyde(mapa)
+facu= Facu(mapa)
+picky = Picky(mapa)
 
 score = 0
 ventana_abierta = True
@@ -48,10 +51,16 @@ while ventana_abierta:
             blinky.asustar()
             pinky.asustar()
             inky.asustar()
+            clyde.asustar()
+            facu.asustar()
+            picky.asustar()
 
         blinky.actualizar(dt, mapa, jugador)
         pinky.actualizar(dt,mapa,jugador)
         inky.actualizar(dt,mapa,jugador)
+        clyde.actualizar(dt,mapa,jugador)
+        facu.actualizar(dt,mapa,jugador)
+        picky.actualizar(dt,mapa,jugador)
 
         if jugador.colisiona_con(blinky):
             if blinky.estado == ESTADO_ASUSTADO:
@@ -63,6 +72,9 @@ while ventana_abierta:
                 blinky.resetear()
                 pinky.resetear()
                 inky.resetear()
+                clyde.resetear()
+                facu.resetear()
+                picky.resetear()
 
                 pausa_reinicio = 2.0
         
@@ -76,6 +88,10 @@ while ventana_abierta:
                 blinky.resetear()
                 pinky.resetear()
                 inky.resetear()
+                clyde.resetear()
+                facu.resetear()
+                picky.resetear()
+
                 pausa_reinicio = 2.0
         
         if jugador.colisiona_con(inky):
@@ -88,6 +104,56 @@ while ventana_abierta:
                 blinky.resetear()
                 pinky.resetear()
                 inky.resetear()
+                clyde.resetear()
+                facu.resetear()
+                picky.resetear()
+
+                pausa_reinicio = 2.0
+
+        if jugador.colisiona_con(clyde):
+            if clyde.estado == ESTADO_ASUSTADO:
+                clyde.morir()
+
+            elif clyde.estado == ESTADO_NORMAL:
+
+                jugador.resetear()
+                blinky.resetear()
+                pinky.resetear()
+                inky.resetear()
+                clyde.resetear()
+                facu.resetear()
+                picky.resetear()
+
+                pausa_reinicio = 2.0
+
+        if jugador.colisiona_con(facu):
+            if facu.estado == ESTADO_ASUSTADO:
+                facu.morir()
+
+            elif facu.estado == ESTADO_NORMAL:
+                pacman_comido = True
+                jugador.resetear()
+                blinky.resetear()
+                pinky.resetear()
+                inky.resetear()
+                clyde.resetear()
+                facu.resetear()
+                picky.resetear()
+                pausa_reinicio = 2.0
+        
+        if jugador.colisiona_con(picky):
+            if picky.estado == ESTADO_ASUSTADO:
+                picky.morir()
+
+            elif picky.estado == ESTADO_NORMAL:
+                pacman_comido = True
+                jugador.resetear()
+                blinky.resetear()
+                pinky.resetear()
+                inky.resetear()
+                clyde.resetear()
+                facu.resetear()
+                picky.resetear()
                 pausa_reinicio = 2.0
 
 
@@ -99,6 +165,10 @@ while ventana_abierta:
     blinky.dibujar(pantalla, margen_superior)
     pinky.dibujar(pantalla,margen_superior)
     inky.dibujar(pantalla,margen_superior)
+    clyde.dibujar(pantalla,margen_superior)
+    facu.dibujar(pantalla,margen_superior)
+    picky.dibujar(pantalla,margen_superior)
+
 
     pygame.display.flip()
 
