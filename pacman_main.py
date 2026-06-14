@@ -46,6 +46,11 @@ def quedan_puntos(mapa):
                 return True
     return False
 
+def resetear_posiciones(jugador, fantasmas):
+    jugador.resetear()
+    for fantasma in fantasmas:
+        fantasma.resetear()
+
 pygame.init()
 
 mapa = Mapa("mapa.txt")
