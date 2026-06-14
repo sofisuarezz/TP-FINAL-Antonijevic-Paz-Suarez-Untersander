@@ -111,6 +111,14 @@ class Ghost:
             col = self.col() + dc
             fila = self.fila() + df
 
+            tile_actual = mapa.obtener_tile(self.col(), self.fila())
+
+            # para teletransportar
+            
+            if tile_actual == "T" and (col < 0 or col >= map_col):
+                validas.append(nombre)
+                continue
+
             if mapa.es_pared((col, fila)):
                 continue
 
@@ -270,6 +278,21 @@ class Ghost:
         if nombre_nuevo != nombre_anterior:
             self.direccion = opuesta[self.direccion]
 
+    def teletransportar_tunel(self, mapa):
+
+        fila = self.fila()
+
+        if fila < 0 or fila >= map_filas:
+            return
+
+        if self.col() < 0:
+            if mapa.es_tunel(0, fila):
+                self.x = (map_col - 1) * tile_size + tile_size / 2
+
+        elif self.col() >= map_col:
+            if mapa.es_tunel(map_col - 1, fila):
+                self.x = tile_size / 2
+
     def mover(self, dt, mapa):
 
         dc, df = direcciones[self.direccion]
@@ -282,6 +305,7 @@ class Ghost:
         self.x += dc * velocidad * dt
         self.y += df * velocidad * dt
 
+        self.teletransportar_tunel(mapa)
 
     def actualizar(self, dt, mapa, pacman):
 
