@@ -23,6 +23,20 @@ class Ghost:
 
     def __init__(self, mapa, color, esquina_col, esquina_fila, offset_x = 0):
 
+        """
+        Representa un fantasma del juego.
+
+        Esta clase contiene la lógica general común a todos los fantasmas:
+        posición dentro del mapa, dirección actual, velocidad, sprites,
+        estados de comportamiento y movimiento por tiles.
+
+        mapa -- mapa donde se ubica el fantasma
+        color -- color usado para cargar sus sprites
+        esquina_col -- columna objetivo en modo scatter
+        esquina_fila -- fila objetivo en modo scatter
+        offset_x -- desplazamiento horizontal inicial
+        """
+
 
         col, fila = mapa.obtener_posicion_fantasma()
 
@@ -84,12 +98,28 @@ class Ghost:
 
 
     def col(self):
+
+        """
+        Devuelve la columna actual del fantasma en coordenadas de tile.
+        """
+
         return int(self.x) // tile_size
 
     def fila(self):
+
+        """
+        Devuelve la fila actual del fantasma en coordenadas de tile.
+        """
         return int(self.y) // tile_size
+        
 
     def centrado(self, margen=4):
+
+        """
+        Indica si el fantasma está centrado dentro del tile actual.
+        margen -- tolerancia en píxeles para considerar que está centrado
+        
+        """
 
         cx = self.col() * tile_size + tile_size / 2
         cy = self.fila() * tile_size + tile_size / 2
@@ -98,11 +128,25 @@ class Ghost:
     
     def alinear_al_tile(self):
 
+        """
+        Alinea al fantasma con el centro exacto del tile actual.
+        
+        """
+
         self.x = self.col() * tile_size + tile_size / 2
         self.y = self.fila() * tile_size + tile_size / 2
             
     
     def direcciones_validas(self, mapa):
+
+
+        """
+        Calcula las direcciones hacia las que el fantasma puede moverse.
+        Para cada dirección posible, se revisa el tile vecino correspondiente.
+        Si ese tile es una pared, se descarta.
+        mapa -- mapa del juego usado para consultar paredes y tiles especiales
+    
+        """
 
         validas = []
 
@@ -114,7 +158,7 @@ class Ghost:
             tile_actual = mapa.obtener_tile(self.col(), self.fila())
 
             # para teletransportar
-            
+
             if tile_actual == "T" and (col < 0 or col >= map_col):
                 validas.append(nombre)
                 continue
@@ -136,6 +180,14 @@ class Ghost:
         return validas
 
     def elegir_direccion(self, mapa, target_col, target_fila):
+
+        """
+        Elige la dirección del fantasma en una intersección.
+        mapa -- mapa del juego
+        target_col -- columna del tile objetivo
+        target_fila -- fila del tile objetivo
+
+        """
 
         direccion_anterior = self.direccion
 
@@ -195,6 +247,12 @@ class Ghost:
 
     def elegir_direccion_asustado(self, mapa):
 
+        """
+        Elige una dirección aleatoria válida para el modo asustado.
+        mapa -- mapa del juego
+
+        """
+
         opciones = self.direcciones_validas(mapa)
 
         if len(opciones) == 0:
@@ -208,6 +266,12 @@ class Ghost:
         self.direccion = random.choice(opciones)
 
     def get_target_ojos(self):
+
+        """
+        Devuelve el objetivo de los ojos cuando vuelven a la ghost house.
+
+        """
+        
         col, fila = self.col(), self.fila()
         
         if fila >= 16:
@@ -224,6 +288,14 @@ class Ghost:
 
     def asustar(self):
 
+        """
+        Cambia al fantasma al estado asustado.
+
+        Este método se ejecuta cuando Pac-Man come una power pellet. Solo afecta
+        a los fantasmas que están en estado normal.
+        
+        """
+
         if self.estado != ESTADO_NORMAL:
             return
 
@@ -233,7 +305,7 @@ class Ghost:
 
         self.direccion = opuesta[self.direccion] #porque tienen que invertir direccion al cambiar de modo
 
-        #guardo tile donde se asusta para que lo primero sea cmbiar de 
+        # guardo tile donde se asusta para que lo primero sea cmbiar de 
         # direcc y no elegir direccion random denuevo 
         # agregado cuando temblaban 
 
@@ -241,12 +313,27 @@ class Ghost:
             
 
     def morir(self):
-
+        """
+        Cambia al fantasma al estado ojos.
+        Este método se ejecuta cuando Pac-Man come a un fantasma asustado.
+        """
+        
         self.estado = ESTADO_OJOS
         self.velocidad = vel_fantasma_ojos
         self.tiempo_asustado = 0
 
     def actualizar_estado(self, dt):
+
+        """
+        Actualiza el estado temporal del fantasma.
+
+        Principalmente controla la duración del modo asustado. Mientras el
+        fantasma está asustado, se acumula el tiempo transcurrido. Cuando se
+        alcanza la duración máxima del modo asustado, el fantasma vuelve al
+        estado normal
+
+        dt -- tiempo transcurrido desde el último frame
+        """
 
         if self.estado != ESTADO_ASUSTADO:
             return
@@ -260,6 +347,20 @@ class Ghost:
             self.ultimo_tile_asustado = None
 
     def actualizar_modo(self, dt):
+
+        """
+        Actualiza el modo global del fantasma entre scatter y chase.
+
+        Los fantasmas alternan entre modo scatter y modo chase siguiendo una
+        secuencia de tiempos. En scatter, cada fantasma se dirige a su esquina
+        asignada. En chase, cada fantasma usa su propia estrategia para perseguir
+        o anticipar a Pac-Man.
+
+        Cuando cambia el modo, el fantasma invierte inmediatamente su dirección.
+
+        dt -- tiempo transcurrido desde el último frame
+        """
+
         if self.estado != ESTADO_NORMAL:
             return
 
@@ -280,6 +381,12 @@ class Ghost:
 
     def teletransportar_tunel(self, mapa):
 
+        """
+        Teletransporta al fantasma si sale por un túnel lateral.
+        mapa -- mapa del juego usado para detectar los túneles laterales
+        
+        """
+
         fila = self.fila()
 
         if fila < 0 or fila >= map_filas:
@@ -295,6 +402,18 @@ class Ghost:
 
     def mover(self, dt, mapa):
 
+        """
+        Mueve al fantasma según su dirección y velocidad actual.
+
+        Calcula el desplazamiento usando la dirección del fantasma y el tiempo
+        transcurrido entre frames. Si el fantasma está en un túnel, usa la
+        velocidad reducida correspondiente. Luego actualiza su posición en
+        píxeles y verifica si debe teletransportarse al otro lado del mapa.
+
+        dt -- tiempo transcurrido desde el último frame
+        mapa -- mapa del juego
+        """
+
         dc, df = direcciones[self.direccion]
 
         velocidad = self.velocidad
@@ -308,6 +427,20 @@ class Ghost:
         self.teletransportar_tunel(mapa)
 
     def actualizar(self, dt, mapa, pacman):
+
+        """
+        Actualiza la lógica principal del fantasma en cada frame.
+
+        Controla sus estados especiales, como salir de la ghost house,
+        estar asustado o volver como ojos. Cuando está centrado en un tile,
+        decide la dirección según su estado y objetivo. Finalmente, mueve
+        al fantasma.
+
+        dt -- tiempo transcurrido desde el último frame
+        mapa -- mapa del juego
+        pacman -- instancia de Pac-Man usada para calcular objetivos
+
+        """
 
         if self.estado == ESTADO_ESPERANDO:
             return
@@ -429,6 +562,12 @@ class Ghost:
 
     def resetear(self):
 
+        """
+        Reinicia al fantasma a su posición y estado inicial.
+        Se usa cuando Pac-Man pierde una vida o cuando se reinicia la partida.
+
+        """
+
         self.x = self.inicial_x
         self.y = self.inicial_y
 
@@ -451,6 +590,17 @@ class Ghost:
         self.ultimo_tile_decision = None
 
     def dibujar(self, pantalla, offset_y=0):
+
+        """
+        Dibuja al fantasma en la pantalla.
+
+        El sprite elegido depende del estado del fantasma.También se aplican pequeños  
+        ajustes visuales para que el sprite quede mejor alineado con el mapa.
+
+        pantalla -- superficie de PyGame donde se dibuja el fantasma
+        offset_y -- desplazamiento vertical usado para compensar la interfaz
+        
+        """
 
         sprite = self.sprites[self.direccion]
 

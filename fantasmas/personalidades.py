@@ -4,21 +4,61 @@ from setting import *
 
 class Blinky(Ghost):
 
+    """
+        Fantasma rojo que persigue directamente a Pac-Man.
+
+        Su comportamiento en modo chase: usa como objetivo la posición 
+        actual de Pac-Man. En modo scatter, hereda la lógica general
+        de Ghost y se dirige hacia su esquina asignada.
+
+        mapa -- mapa del juego
+        """
+    
     def __init__(self, mapa):
+
+        """
+        Inicializa a Blinky con su color y su esquina de scatter.
+        mapa -- mapa del juego
+        """
 
         super().__init__(mapa, "red", esquina_col=25, esquina_fila=1, offset_x=0)
         
     def get_target(self, pacman):
+         
+        """
+        Devuelve la posición actual de Pac-Man como objetivo.
+        pacman -- instancia de Pac-Man
 
-         return (pacman.col(), pacman.fila())
+        """
+
+        return (pacman.col(), pacman.fila())
 
 
 class Pinky(Ghost):
+    """
+        Fantasma rosa que intenta anticiparse al movimiento de Pac-Man.
+
+        En vez de apuntar a la posición actual de Pac-Man, calcula un objetivo
+        4 tiles por delante de la dirección en la que Pac-Man se está
+        moviendo.
+        """
 
     def __init__(self, mapa):
+
+        """
+        Inicializa a Pinky con su color y su esquina de scatter.
+        mapa -- mapa del juego
+        """
+
         super().__init__(mapa, "pink", esquina_col=2, esquina_fila=0, offset_x= tile_size)
 
     def get_target(self, pacman):
+
+        """
+        Calcula un objetivo adelantado según la dirección de Pac-Man.
+        pacman -- instancia de Pac-Man
+        
+        """
         
         if pacman.direccion == "arriba" :
             return ( pacman.col() -4, pacman.fila() -4)
@@ -32,8 +72,26 @@ class Pinky(Ghost):
     
 
 class Inky(Ghost): 
+    
+    """
+    Fantasma celeste con comportamiento menos predecible.
+
+    Su objetivo se calcula usando la posición de Pac-Man y la posición de
+    otro fantasma de referencia, normalmente Blinky. Esto genera un target
+    más variable que depende de la ubicación de ambos personajes.
+    
+    """
 
     def __init__(self, mapa, blinky=None, otros_fantasmas=None):
+
+        """
+        Inicializa a Inky y define su fantasma de referencia.
+
+        mapa -- mapa del juego
+        blinky -- fantasma Blinky, si está disponible
+        otros_fantasmas -- lista de fantasmas alternativos para usar como referencia
+        
+        """
 
         super().__init__(mapa, "blue", esquina_col=25, esquina_fila=29, offset_x=-tile_size)
 
@@ -47,6 +105,14 @@ class Inky(Ghost):
         self.fantasma_referencia_azar = None
 
     def obtener_fantasma_referencia(self):
+
+        """
+        Devuelve el fantasma que Inky usa como referencia.
+
+        Si Blinky está disponible, se usa a Blinky. Si no, puede usarse otro
+        fantasma de la partida como referencia alternativa.
+        
+        """
 
         if self.blinky is not None:
             return self.blinky
@@ -71,6 +137,12 @@ class Inky(Ghost):
         return self.fantasma_referencia_azar
 
     def get_target(self, pacman):
+
+        """
+        Calcula el objetivo de Inky usando a Pac-Man y un fantasma de referencia.
+        pacman -- instancia de Pac-Man
+        
+        """
         
         if pacman.direccion == "arriba":
 
@@ -94,11 +166,31 @@ class Inky(Ghost):
 
 class Clyde(Ghost):
 
+    """
+    Fantasma naranja que cambia su comportamiento según la distancia a Pac-Man.
+
+    Si está lejos, persigue a Pac-Man. Si se acerca demasiado (8 tiles), deja de
+    perseguirlo y vuelve hacia su zona de scatter. 
+    
+    """
+
     def __init__(self, mapa):
+        
+        """
+        Inicializa a Clyde con su color y su esquina de scatter.
+
+        mapa -- mapa del juego
+        """
 
         super().__init__(mapa, "orange", esquina_col=2, esquina_fila=29, offset_x=2*tile_size)
 
     def get_target(self, pacman):
+
+        """
+        Devuelve la posición de Pac-Man o la esquina de scatter según la distancia.
+        pacman -- instancia de Pac-Man
+        
+        """
 
         distancia = ((self.col() - pacman.col()) ** 2 + (self.fila() - pacman.fila()) ** 2)
 
@@ -111,11 +203,32 @@ class Clyde(Ghost):
             
 class Facu(Ghost):
 
+    """
+    Fantasma propio que cambia su comportamiento según la distancia a Pac-Man.
+
+    Facu calcula la distancia en tiles entre su posición y la de Pac-Man.
+    Si Pac-Man está a 8 tiles o menos, Facu lo toma como objetivo y empieza
+    a perseguirlo directamente. Si Pac-Man está a más de 8 tiles, Facu no
+    lo persigue y se dirige hacia su esquina de scatter.
+
+    """
+
     def __init__(self, mapa):
+        
+        """
+        Inicializa a Facu con su color y su esquina de scatter.
+        mapa -- mapa del juego
+        """
 
         super().__init__(mapa, "green", esquina_col=0, esquina_fila=30, offset_x=-2*tile_size)
 
     def get_target(self, pacman):
+
+        """
+        Elige el objetivo de Facu según la distancia con Pac-Man.
+        pacman -- instancia de Pac-Man
+
+        """
 
         distancia = ((self.col() - pacman.col()) ** 2 + (self.fila() - pacman.fila()) ** 2)
 
@@ -127,7 +240,25 @@ class Facu(Ghost):
     
 class Picky(Ghost):
 
+    """
+    Fantasma propio que protege las power pellets del mapa.
+
+    Picky busca cuál power pellet es más cercano a la posición de
+    Pac-Man y lo usa como referencia.
+
+    Si Pac-Man está a más de 5 tiles de esa power pellet, Picky no persigue
+    directamente a Pac-Man, sino que se mueve hacia una zona de guardia
+    cercana a la power pellet. Sino, Picky cambia su comportamiento y empieza 
+    a perseguir directamente a Pac-Man
+
+    """
+
     def __init__(self, mapa):
+
+        """
+        Inicializa a Picky y guarda el mapa para consultar las power pellets.
+        mapa -- mapa del juego
+        """
 
         super().__init__(mapa, "purple", esquina_col=2, esquina_fila=29, offset_x=3 * tile_size)
         self.mapa = mapa
@@ -135,12 +266,25 @@ class Picky(Ghost):
 
     def distancia(self, pos1, pos2):
 
+        """
+        Calcula la distancia cuadrada entre dos posiciones del mapa.
+
+        pos1 -- primera posición como tupla (columna, fila)
+        pos2 -- segunda posición como tupla (columna, fila)
+        """
+
         col1, fila1 = pos1
         col2, fila2 = pos2
 
         return ((col1 - col2) ** 2 + (fila1 - fila2) ** 2)
 
     def pellet_mas_cercano_a_pacman(self, pacman):
+
+        """
+        Busca la power pellet más cercana a Pac-Man.
+        pacman -- instancia de Pac-Man
+        
+        """
 
         pellets = self.mapa.obtener_power_pellets()
 
@@ -161,6 +305,16 @@ class Picky(Ghost):
         return mejor_pellet
 
     def actualizar_pellet_objetivo(self, pacman):
+
+        """
+        Actualiza la power pellet que Picky está defendiendo.
+
+        Si no hay una power pellet objetivo o si aparece una más conveniente,
+        Picky actualiza su objetivo para proteger la más relevante.
+
+        pacman -- instancia de Pac-Man
+        
+        """
 
         pellets = self.mapa.obtener_power_pellets()
 
@@ -190,6 +344,15 @@ class Picky(Ghost):
 
     def target_de_guardia(self, pellet):
 
+        """
+        Devuelve una zona de guardia asociada a una power pellet.
+
+        En lugar de apuntar exactamente al tile de la power pellet, Picky
+        apunta a una zona cercana para evitar trabarse y defender mejor el área.
+
+        pellet -- posición de la power pellet como tupla (columna, fila)
+        """
+
         col, fila = pellet
 
         if col < 14 and fila < 15:
@@ -204,6 +367,11 @@ class Picky(Ghost):
         return (25, 23)         # zona abajo derecha
 
     def get_target(self, pacman):
+
+        """
+        Devuelve el objetivo actual de Picky.
+        pacman -- instancia de Pac-Man
+        """
 
         self.actualizar_pellet_objetivo(pacman)
 
@@ -227,6 +395,15 @@ class Picky(Ghost):
     # la coordenada exacta del power pellet)
 
     def debug(self, pacman):
+
+        """
+        Muestra información interna de Picky para revisar su comportamiento.
+
+        Se usa para comprobar qué power pellet está defendiendo, cuál es su
+        objetivo actual y cómo está tomando decisiones.
+
+        pacman -- instancia de Pac-Man
+        """
 
         if self.estado == "asustado":
             target_real = "random asustado"
@@ -256,6 +433,10 @@ class Picky(Ghost):
         )
         
     def resetear(self):
+        
+        """
+        Reinicia a Picky a su estado inicial.
+        """
 
         super().resetear()
         self.pellet_objetivo = None
