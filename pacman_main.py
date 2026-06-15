@@ -127,145 +127,151 @@ def crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa):
 
     return fantasmas
 
-pygame.init()
+def main() -> None:
 
-sonido = Sonido()
-high_score = cargar_high_score()
-sonido.reproducir_jingle_inicio()
-fantasmas_elegidos, esquinas_asignadas = pantalla_inicio(high_score)
+    pygame.init()
 
-
-mapa = Mapa("mapa.txt")
-
-ancho_ventana = ancho_mapa * tile_size
-alto_ventana  = alto_mapa  * tile_size + margen_superior + margen_inferior
-
-pantalla = pygame.display.set_mode((ancho_ventana, alto_ventana))
-pygame.display.set_caption("Pac-Man")
-
-fuente = pygame.font.SysFont("arial", 24, True)
-reloj  = pygame.time.Clock()
-
-jugador = pacman(mapa)
-
-fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
-
-puntos_salida = [0, 30, 60, 90, 90, 90]
-
-for i in range(len(fantasmas)):
-    fantasmas[i].puntos_para_salir = puntos_salida[i]
-
-score = 0
-high_score = cargar_high_score()
-vidas = vidas_iniciales
+    sonido = Sonido()
+    high_score = cargar_high_score()
+    sonido.reproducir_jingle_inicio()
+    fantasmas_elegidos, esquinas_asignadas = pantalla_inicio(high_score)
 
 
-ventana_abierta = True
-pausa_reinicio = 0
+    mapa = Mapa("mapa.txt")
 
-while ventana_abierta:
-    dt = reloj.tick(60) / 1000.0
+    ancho_ventana = ancho_mapa * tile_size
+    alto_ventana  = alto_mapa  * tile_size + margen_superior + margen_inferior
 
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            ventana_abierta = False
-        jugador.manejar_evento(evento)
+    pantalla = pygame.display.set_mode((ancho_ventana, alto_ventana))
+    pygame.display.set_caption("Pac-Man")
 
-    if pausa_reinicio > 0:
-        pausa_reinicio -= dt
+    fuente = pygame.font.SysFont("arial", 24, True)
+    reloj  = pygame.time.Clock()
 
-    else:
+    jugador = pacman(mapa)
 
-        pacman_comido = False 
+    fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
 
-        puntos_ganados = jugador.actualizar(dt, mapa)
+    puntos_salida = [0, 30, 60, 90, 90, 90]
 
-        if puntos_ganados > 0:
-            sonido.reproducir_comer_punto()
+    for i in range(len(fantasmas)):
+        fantasmas[i].puntos_para_salir = puntos_salida[i]
 
-        score += puntos_ganados
-
-        if score > high_score:
-            high_score = score
-            guardar_high_score(high_score) 
-        
-        for fantasma in fantasmas:
-            if fantasma.estado == ESTADO_ESPERANDO and score >= fantasma.puntos_para_salir:
-                fantasma.estado = ESTADO_SALIENDO
+    score = 0
+    high_score = cargar_high_score()
+    vidas = vidas_iniciales
 
 
-        if jugador.comio_power_pellet:
-            for fantasma in fantasmas:
-                fantasma.asustar()
+    ventana_abierta = True
+    pausa_reinicio = 0
 
-        for fantasma in fantasmas:
-            fantasma.actualizar(dt, mapa, jugador)
+    while ventana_abierta:
+        dt = reloj.tick(60) / 1000.0
 
-        pacman_comido = False
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                ventana_abierta = False
+            jugador.manejar_evento(evento)
 
-        for fantasma in fantasmas:
-            if jugador.colisiona_con(fantasma):
-                if fantasma.estado == ESTADO_ASUSTADO:
-                    fantasma.morir()
-                    score = score + 200
+        if pausa_reinicio > 0:
+            pausa_reinicio -= dt
 
-                elif fantasma.estado == ESTADO_NORMAL:
-                    pacman_comido = True
+        else:
 
+            pacman_comido = False 
 
-        if pacman_comido:
-            sonido.reproducir_perder_vida()
-            vidas = vidas - 1
+            puntos_ganados = jugador.actualizar(dt, mapa)
 
-            if vidas <= 0:
-                resultado = pantalla_game_over(pantalla, score)
+            if puntos_ganados > 0:
+                sonido.reproducir_comer_punto()
 
-                if resultado == "salir":
-                    ventana_abierta = False
+            score += puntos_ganados
 
-                if resultado == "reiniciar":
-                    mapa = Mapa("mapa.txt")
-
-                    jugador = pacman(mapa)
-                    blinky_nuevo = Blinky(mapa)
-                    fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
-                    
-                    puntos_salida = [0, 30, 60, 90, 90, 90]
-                    for i in range(len(fantasmas)):
-                        fantasmas[i].puntos_para_salir = puntos_salida[i]
-
-                    score = 0
-                    high_score = cargar_high_score()
-                    vidas = vidas_iniciales
-                    pausa_reinicio = 0
-
-                    
-            else:
-                resetear_posiciones(jugador, fantasmas)
-                pausa_reinicio = 2.0
-        
-        if not quedan_puntos(mapa):
-            mapa = Mapa("mapa.txt")
-            jugador = pacman(mapa)
-            blinky_nuevo = Blinky(mapa)
-            fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
+            if score > high_score:
+                high_score = score
+                guardar_high_score(high_score) 
             
-            puntos_salida = [0, 30, 60, 90, 90, 90]
-            for i in range(len(fantasmas)):
-                fantasmas[i].puntos_para_salir = puntos_salida[i]
-    
-            pausa_reinicio = 2.0
+            for fantasma in fantasmas:
+                if fantasma.estado == ESTADO_ESPERANDO and score >= fantasma.puntos_para_salir:
+                    fantasma.estado = ESTADO_SALIENDO
 
 
-    pantalla.fill((0, 0, 0))
-    dibujar_texto_juego(pantalla, fuente,score, high_score)
-    dibujar_mapa(pantalla, mapa)
-    dibujar_vidas_juego(pantalla,vidas)
-    jugador.dibujar(pantalla, offset_y=margen_superior)
-    
-    for fantasma in fantasmas:
-        fantasma.dibujar(pantalla, margen_superior)
+            if jugador.comio_power_pellet:
+                for fantasma in fantasmas:
+                    fantasma.asustar()
 
-    pygame.display.flip()
+            for fantasma in fantasmas:
+                fantasma.actualizar(dt, mapa, jugador)
 
-pygame.quit()
+            pacman_comido = False
+
+            for fantasma in fantasmas:
+                if jugador.colisiona_con(fantasma):
+                    if fantasma.estado == ESTADO_ASUSTADO:
+                        fantasma.morir()
+                        score = score + 200
+
+                    elif fantasma.estado == ESTADO_NORMAL:
+                        pacman_comido = True
+
+
+            if pacman_comido:
+                sonido.reproducir_perder_vida()
+                vidas = vidas - 1
+
+                if vidas <= 0:
+                    resultado = pantalla_game_over(pantalla, score)
+
+                    if resultado == "salir":
+                        ventana_abierta = False
+
+                    if resultado == "reiniciar":
+                        mapa = Mapa("mapa.txt")
+
+                        jugador = pacman(mapa)
+                        blinky_nuevo = Blinky(mapa)
+                        fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
+                        
+                        puntos_salida = [0, 30, 60, 90, 90, 90]
+                        for i in range(len(fantasmas)):
+                            fantasmas[i].puntos_para_salir = puntos_salida[i]
+
+                        score = 0
+                        high_score = cargar_high_score()
+                        vidas = vidas_iniciales
+                        pausa_reinicio = 0
+
+                        
+                else:
+                    resetear_posiciones(jugador, fantasmas)
+                    pausa_reinicio = 2.0
+            
+            if not quedan_puntos(mapa):
+                mapa = Mapa("mapa.txt")
+                jugador = pacman(mapa)
+                blinky_nuevo = Blinky(mapa)
+                fantasmas = crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa)
+                
+                puntos_salida = [0, 30, 60, 90, 90, 90]
+                for i in range(len(fantasmas)):
+                    fantasmas[i].puntos_para_salir = puntos_salida[i]
+        
+                pausa_reinicio = 2.0
+
+
+        pantalla.fill((0, 0, 0))
+        dibujar_texto_juego(pantalla, fuente,score, high_score)
+        dibujar_mapa(pantalla, mapa)
+        dibujar_vidas_juego(pantalla,vidas)
+        jugador.dibujar(pantalla, offset_y=margen_superior)
+        
+        for fantasma in fantasmas:
+            fantasma.dibujar(pantalla, margen_superior)
+
+        pygame.display.flip()
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
