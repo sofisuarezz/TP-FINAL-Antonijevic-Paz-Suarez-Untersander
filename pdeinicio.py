@@ -43,7 +43,12 @@ clock = pygame.time.Clock()
  
 
 def dibujar_inicio(tick, high_score):
+    """
+    Dibuja la pantalla inicial del juego.
 
+    Muestra el título de Pac-Man, el high score y el mensaje para empezar.
+    El mensaje de ENTER aparece y desaparece usando el valor de tick.
+    """
     pantalla.fill(NEGRO)
 
     texto_hs = fuente_chica.render("HIGH SCORE", True, BLANCO)
@@ -61,7 +66,12 @@ def dibujar_inicio(tick, high_score):
  
  
 def dibujar_seleccion(seleccionados):
-  
+    """
+    Dibuja la pantalla donde el jugador elige los fantasmas.
+
+    Muestra los seis fantasmas disponibles, sus nombres, colores y descripciones.
+    También marca cuáles ya fueron seleccionados y muestra cuántos faltan elegir.
+    """
     pantalla.fill(NEGRO)
 
     fuente_titulo = pygame.font.SysFont("monospace", 30, bold=True)
@@ -112,6 +122,12 @@ def dibujar_seleccion(seleccionados):
  
  
 def dibujar_asignacion(fantasmas_elegidos, indice_actual, esquinas_asignadas):
+    """
+    Dibuja la pantalla donde se asigna una esquina a cada fantasma elegido.
+
+    Muestra el fantasma actual, las esquinas disponibles y las esquinas que ya
+    fueron usadas. También permite ver a qué fantasma fue asignada cada esquina.
+    """
     pantalla.fill(NEGRO)
     fantasma = fantasmas_elegidos[indice_actual]
  
@@ -179,7 +195,12 @@ def dibujar_asignacion(fantasmas_elegidos, indice_actual, esquinas_asignadas):
  
  
 def dibujar_resumen(fantasmas_elegidos, esquinas_asignadas):
-    
+    """
+    Dibuja la pantalla final de resumen antes de empezar la partida.
+
+    Muestra los cuatro fantasmas elegidos y la esquina asignada a cada uno.
+    También indica que hay que presionar ENTER para comenzar el juego.
+    """
     pantalla.fill(NEGRO)
  
     titulo = fuente_grande.render("LISTOS!", True, AMARILLO)
@@ -210,7 +231,13 @@ def dibujar_resumen(fantasmas_elegidos, esquinas_asignadas):
     pantalla.blit(msg, (ancho // 2 - msg.get_width() // 2, alto - 55))
 
 def pantalla_inicio(high_score):
- 
+    """
+    Ejecuta toda la pantalla de inicio del juego.
+
+    Controla los distintos estados de la pantalla, inicio, selección de fantasmas,
+    asignación de esquinas y resumen final. Devuelve la lista de los fantasmas elegidos
+    y el diccionario con las esquinas que se asignaron.
+    """
     estado = "inicio"         
  
     seleccionados      = []   
