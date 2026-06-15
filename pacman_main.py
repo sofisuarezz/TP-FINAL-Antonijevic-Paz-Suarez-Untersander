@@ -13,6 +13,9 @@ from pantalla_gameover import pantalla_game_over
 
 
 def dibujar_texto_juego(pantalla, fuente, score, high_score):
+    """
+    Dibuja el score actual y el high score 
+    """
     texto_1up = fuente.render("1UP", True, color_infojuego)
     texto_score = fuente.render(str(score), True, color_infojuego)
 
@@ -27,6 +30,9 @@ def dibujar_texto_juego(pantalla, fuente, score, high_score):
 
 
 def dibujar_vidas_juego(pantalla, vidas):
+    """
+    Dibuja los íconos de vidas restantes
+    """
     y = margen_superior + alto_mapa * tile_size + 30
 
     for i in range(vidas):
@@ -41,6 +47,9 @@ def dibujar_vidas_juego(pantalla, vidas):
         )
 
 def quedan_puntos(mapa):
+    """
+    Devuelve True si todavía hay puntos o power pellets en el mapa
+    """
     for fila in mapa.grilla:
         for caracter in fila:
             if caracter == "." or caracter == "o":
@@ -48,11 +57,17 @@ def quedan_puntos(mapa):
     return False
 
 def resetear_posiciones(jugador, fantasmas):
+    """
+    Resetea la posición de Pac-Man y de todos los fantasmas a sus posiciones iniciales
+    """
     jugador.resetear()
     for fantasma in fantasmas:
         fantasma.resetear()
 
 def obtener_esquina(indice):
+    """
+    Devuelve la columna y fila correspondientes a una esquina del mapa según su índice (0 a 3)
+    """
     if indice == 0:
         return 2, 0
 
@@ -67,6 +82,9 @@ def obtener_esquina(indice):
 
 
 def crear_fantasmas(fantasmas_elegidos, esquinas_asignadas, mapa):
+    """
+    Crea y devuelve la lista de fantasmas según los elegidos por el usuario, asignándoles su esquina de scatter
+    """
     fantasmas = []
 
     blinky_referencia = None
