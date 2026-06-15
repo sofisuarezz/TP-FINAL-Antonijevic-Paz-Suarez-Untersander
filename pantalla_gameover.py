@@ -3,16 +3,30 @@ from setting import color_fondo, color_pacman, color_infojuego, fps
 from high_score import actualizar_high_score
 
 
-def pantalla_game_over(pantalla, score):
-    high_score = actualizar_high_score(score)
+def pantalla_game_over(pantalla: pygame.Surface, score: int) -> str:
+    """
+    Muestra la pantalla de Game Over cuando el jugador pierde todas sus vidas.
 
-    reloj = pygame.time.Clock()
+    Actualiza el high score si el puntaje actual lo supera y espera a que
+    el jugador decida si quiere reiniciar la partida o salir del juego.
 
-    fuente_titulo = pygame.font.SysFont("arial", 60, True)
-    fuente_mediana = pygame.font.SysFont("arial", 32, True)
-    fuente_chica = pygame.font.SysFont("arial", 24, True)
+    Argumentos:
+        pantalla (pygame.Surface): Ventana principal donde se dibuja la pantalla.
+        score (int): Puntaje final obtenido en la partida.
 
-    pantalla_abierta = True
+    Retorna:
+        str: "reiniciar" si el jugador presiona R, o "salir" si presiona ESC
+        o cierra la ventana.
+    """
+    high_score: int = actualizar_high_score(score)
+
+    reloj: pygame.time.Clock = pygame.time.Clock()
+
+    fuente_titulo: pygame.font.Font = pygame.font.SysFont("arial", 60, True)
+    fuente_mediana: pygame.font.Font = pygame.font.SysFont("arial", 32, True)
+    fuente_chica: pygame.font.Font = pygame.font.SysFont("arial", 24, True)
+
+    pantalla_abierta: bool = True
 
     while pantalla_abierta:
         eventos = pygame.event.get()
