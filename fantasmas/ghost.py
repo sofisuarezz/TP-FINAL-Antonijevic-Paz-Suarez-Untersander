@@ -21,22 +21,26 @@ TIEMPOS_MODO = [
 
 class Ghost:
 
-    def __init__(self, mapa, color, esquina_col, esquina_fila, offset_x = 0):
-
-        """
+    """
         Representa un fantasma del juego.
 
         Esta clase contiene la lógica general común a todos los fantasmas:
         posición dentro del mapa, dirección actual, velocidad, sprites,
         estados de comportamiento y movimiento por tiles.
 
+    """    
+
+    def __init__(self, mapa, color, esquina_col, esquina_fila, offset_x = 0):
+
+        """
+        Inicializa un fantasma con su posición, estado, velocidad y sprites.
         mapa -- mapa donde se ubica el fantasma
         color -- color usado para cargar sus sprites
         esquina_col -- columna objetivo en modo scatter
         esquina_fila -- fila objetivo en modo scatter
         offset_x -- desplazamiento horizontal inicial
-        """
 
+        """
 
         col, fila = mapa.obtener_posicion_fantasma()
 
@@ -599,7 +603,7 @@ class Ghost:
 
         pantalla -- superficie de PyGame donde se dibuja el fantasma
         offset_y -- desplazamiento vertical usado para compensar la interfaz
-        
+
         """
 
         sprite = self.sprites[self.direccion]
